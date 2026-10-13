@@ -1,3 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>CAE Rater Onboarding</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -304,7 +312,7 @@ td .id{font-size:11.5px}
       <div><b>CAE Evals</b><small>Rater onboarding · Recipes &amp; Entertainment</small></div>
     </div>
     <div class="prog" aria-label="Onboarding progress">
-      <div class="prog-row"><span id="prog-count">0 of 9 done</span><span id="prog-time">about 19 min left</span></div>
+      <div class="prog-row"><span id="prog-count">0 of 9 done</span></div>
       <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" id="prog-bar"><div class="fill" id="prog-fill"></div></div>
     </div>
     <button class="btn sm ref-btn" type="button" data-go="ref">Quick reference</button>
@@ -374,10 +382,6 @@ td .id{font-size:11.5px}
       </ul>
     </div>
   </div>
-  <div class="callout blue">
-    <span class="k">Definition</span>
-    <p><b>"Conversation" or "response"</b> means the whole interaction: the first prompt, every follow-up, and the final recipe or recommendation. Rate it as one combined deliverable.</p>
-  </div>
   <div class="callout sun">
     <span class="k">Your seat</span>
     <p>Put yourself in the user's position. Read as if you were the person who needed this help, and answer every question from that perspective.</p>
@@ -392,11 +396,6 @@ td .id{font-size:11.5px}
       <li>If you get source links instead of transcripts, assistant branding may be visible. Don't let it affect your ratings.</li>
       <li>Some task IDs are skipped. Those tasks are on hold and come in a later batch.</li>
     </ul>
-  </div>
-  <div class="box">
-    <h3>Asked once, about you</h3>
-    <div class="chips"><span class="chip">How often you cook at home</span><span class="chip">How often you stream</span><span class="chip">How often you use AI assistants</span></div>
-    <p class="small">No cooking or streaming expertise is needed.</p>
   </div>
   <div class="check" data-q="m1" data-mod="m1"></div>
 </section>
@@ -428,16 +427,12 @@ td .id{font-size:11.5px}
   <ol class="steps">
     <li class="hl"><div><b>Read the user prompt</b><p>Note the domain (Recipe, or Entertainment: TV show / album). List every explicit constraint: dish type, 30–60 min weeknight time, diet, ingredients on hand, mood or vibe, runtime, streaming preference.</p></div></li>
     <li><div><b>Read all of Assistant A</b><p>Top to bottom, including how it handled each follow-up.</p></div></li>
-    <li><div><b>Score Assistant A right away</b><p>While it's fresh. <span class="id">R-Q1–R-Q9</span> or <span class="id">E-Q1–E-Q5, E-Q9</span></p></div></li>
+    <li><div><b>Score Assistant A right away</b><p>While it's fresh.</p></div></li>
     <li><div><b>Read all of Assistant B</b><p>Top to bottom.</p></div></li>
-    <li><div><b>Score Assistant B on the same items</b><p><span class="id b">R-Q11–R-Q19</span> or <span class="id b">E-Q11–E-Q15, E-Q19</span></p></div></li>
+    <li><div><b>Score Assistant B on the same items</b></div></li>
     <li><div><b>Side-by-side</b><p>Pick which assistant did better (<span class="id x">SxS7</span>) and cite the observable differences behind it (<span class="id x">SxS8</span>).</p></div></li>
-    <li><div><b>Quality check, then identity questions</b><p>Make sure every explanation points to exact ingredients, steps, turns or titles. Then answer <span class="id x">MC1</span> and <span class="id x">MC2</span> honestly.</p></div></li>
+    <li><div><b>Answer MC1 and MC2</b><p>If the language in Assistant A's or B's conversation feels similar to an AI assistant you know, select that assistant from the options (ChatGPT, Gemini, Claude or Other). If it doesn't sound like any of them, select "No idea". Answer MC1 for A and MC2 for B.</p></div></li>
   </ol>
-  <div class="callout blue">
-    <span class="k">ID pattern</span>
-    <p>B's item IDs are A's plus 10. <span class="id">R-Q3</span> for A is <span class="id b">R-Q13</span> for B. Same question, same anchors.</p>
-  </div>
   <div class="check" data-q="m3" data-mod="m3"></div>
 </section>
 
@@ -547,7 +542,6 @@ td .id{font-size:11.5px}
     </article>
   </div>
 
-  <div class="drill" data-hl="r12" data-mod="m5"></div>
 </section>
 
 <!-- M6 ENTERTAINMENT -->
@@ -611,7 +605,6 @@ td .id{font-size:11.5px}
     </article>
   </div>
 
-  <div class="drill" data-hl="e32" data-mod="m6"></div>
 </section>
 
 <!-- M7 SXS -->
@@ -881,6 +874,7 @@ td .id{font-size:11.5px}
   function go(id){
     if(idx(id)<0) id="welcome";
     S.cur=id; save();
+    if(id==="m5"||id==="m6") markDone(id);
     $$(".mod").forEach(function(s){s.hidden=(s.id!=="mod-"+id);});
     $$(".stop").forEach(function(b){ if(b.getAttribute("data-go")===id) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); });
     var cur=$("#stop-"+id); if(cur&&cur.scrollIntoView&&window.innerWidth<=880){try{cur.scrollIntoView({block:"nearest",inline:"center"});}catch(e){}}
@@ -896,9 +890,7 @@ td .id{font-size:11.5px}
 
   function paintProgress(){
     var d=COUNTED.filter(function(m){return S.done[m.id];}).length;
-    var left=COUNTED.filter(function(m){return !S.done[m.id];}).reduce(function(a,m){return a+m.min;},0);
     $("#prog-count").textContent=d+" of "+COUNTED.length+" done";
-    $("#prog-time").textContent= left? ("about "+left+" min left") : "All done";
     $("#prog-fill").style.width=(d/COUNTED.length*100)+"%";
     $("#prog-bar").setAttribute("aria-valuenow",String(d));
     MODS.forEach(function(m){
@@ -1065,3 +1057,6 @@ td .id{font-size:11.5px}
   go(idx(h)>=0?h:(S.cur||"welcome"));
 })();
 </script>
+
+</body>
+</html>
