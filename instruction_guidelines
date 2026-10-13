@@ -1,0 +1,1067 @@
+<title>CAE Rater Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: sticky progress header; left rail of numbered stops + one module at a time in a ~740px reading column; the rail becomes a swipeable pill row under 880px. Single light theme by request. */
+:root{
+  --bg:#F3F6FF; --surface:#FFFFFF; --ink:#121933; --muted:#55607F; --line:#DCE3F4;
+  --blue:#175FFF; --blue-ink:#0F49D1; --blue-soft:#E6EDFF;
+  --sun:#FFD43B; --sun-soft:#FFF5C9;
+  --tomato:#FF5A36; --tomato-ink:#C9381A; --tomato-soft:#FFEBE4;
+  --violet:#7448FF; --violet-ink:#5328E0; --violet-soft:#EEE8FF;
+  --ok:#0B8F5B; --ok-dot:#12B76A; --ok-soft:#E0F6EB;
+  --minor:#9A6200; --minor-dot:#F5A524; --minor-soft:#FFF1D2;
+  --major:#C8202E; --major-dot:#F04438; --major-soft:#FDE6E7;
+  --on-strong:#FFFFFF;
+  --f-display:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r-sm:8px; --r-md:14px; --r-lg:20px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;margin:0}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5.2vw,44px);font-weight:800}
+h2{font-size:clamp(24px,3.6vw,30px);font-weight:800}
+h3{font-size:18px;font-weight:600}
+p{margin:0}
+b,strong{font-weight:700}
+.nw{white-space:nowrap}
+.mono{font-family:var(--f-mono);font-size:.86em}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;color:var(--muted)}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mark{background:linear-gradient(transparent 58%,var(--sun) 58%,var(--sun) 92%,transparent 92%);padding-inline:2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:12px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--ink);display:grid;place-items:center;flex:none}
+.logo span{width:12px;height:12px;border-radius:50%;background:var(--sun);box-shadow:9px 0 0 var(--tomato),-9px 0 0 var(--blue)}
+.brand b{font-family:var(--f-display);font-size:18px;font-weight:800;letter-spacing:-.01em}
+.brand small{display:block;font-size:12.5px;color:var(--muted);line-height:1.2}
+.prog{flex:1;max-width:380px;margin-left:auto;display:grid;gap:6px}
+.prog-row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.prog-row span:last-child{color:var(--muted);font-weight:500}
+.track{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--tomato),var(--sun) 50%,var(--blue));background-size:380px 100%;transition:width .5s ease}
+.ref-btn{flex:none}
+
+/* Shell */
+.shell{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:32px 72px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 92px);align-self:start}
+.rail ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.stop{width:100%;display:flex;align-items:center;gap:12px;padding:8px 10px;border:0;background:none;border-radius:12px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.stop:hover{background:var(--surface)}
+.stop[aria-current="step"]{background:var(--surface);box-shadow:0 1px 0 var(--line),0 0 0 1px var(--line)}
+.num{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;border:2px solid var(--line);background:var(--surface);color:var(--muted)}
+.stop[aria-current="step"] .num{border-color:var(--blue);color:var(--blue)}
+.stop.done .num{background:var(--ok-dot);border-color:var(--ok-dot);color:var(--on-strong)}
+.stop .lab{min-width:0;display:grid;line-height:1.25}
+.stop .lab b{font-weight:600;font-size:14.5px}
+.stop .lab span{font-size:12.5px;color:var(--muted)}
+.stop .short{display:none}
+.rail-sep{height:1px;background:var(--line);margin:8px 10px}
+.rail-done{margin:14px 10px 0;padding:12px 14px;border-radius:var(--r-md);background:var(--ok-soft);color:var(--ok);font-size:13.5px;font-weight:600}
+
+main{min-width:0;max-width:760px}
+.mod{display:grid;gap:22px}
+.mod-head{display:grid;gap:8px}
+.mod-head .eyebrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.donepill{font-size:11.5px;letter-spacing:.06em;padding:3px 9px;border-radius:99px;background:var(--ok-soft);color:var(--ok)}
+.lede{font-size:18px;color:var(--muted);max-width:64ch}
+.prose{max-width:66ch}
+ul.clean{margin:0;padding-left:20px;display:grid;gap:8px}
+ul.clean li::marker{color:var(--blue)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 15px/1 var(--f-body);padding:12px 18px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:var(--on-strong)}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:9px 14px;font-size:14px}
+.link{border:0;background:none;padding:0;font:inherit;color:var(--blue);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* Welcome */
+.hero{display:grid;gap:18px;padding-block:8px 4px}
+.domains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.domain{border-radius:var(--r-lg);padding:20px;display:grid;gap:8px;align-content:start}
+.domain.rec{background:var(--tomato-soft)}
+.domain.ent{background:var(--violet-soft)}
+.dtag{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.02em}
+.rec .dtag{color:var(--tomato-ink)} .ent .dtag{color:var(--violet-ink)}
+.domain p{color:var(--ink);opacity:.85;font-size:15px}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.fact{border-top:3px solid var(--ink);padding-top:10px;display:grid;gap:2px}
+.fact b{font-family:var(--f-display);font-size:20px;font-weight:800}
+.fact span{font-size:14px;color:var(--muted)}
+.cta-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* Callouts */
+.callout{border-radius:var(--r-md);padding:16px 18px;display:grid;gap:4px}
+.callout.blue{background:var(--blue-soft)}
+.callout.sun{background:var(--sun-soft)}
+.callout .k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px 18px;display:grid;gap:10px;align-content:start;min-width:0}
+.box h3{font-size:16px}
+.box ol,.box ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:14px;padding:6px 12px;border-radius:99px;background:var(--surface);border:1px solid var(--line)}
+
+/* Rules */
+.rules{display:grid;gap:10px}
+.rule{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 18px;align-items:start}
+.rule .tag{font-family:var(--f-display);font-weight:800;font-size:16px;line-height:1.25}
+.rule .tag small{display:block;font-family:var(--f-body);font-weight:500;font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* Steps */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s}
+.steps li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;position:relative;padding-bottom:16px}
+.steps li::before{counter-increment:s;content:counter(s);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;background:var(--surface);border:2px solid var(--ink);z-index:1}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:17px;top:36px;bottom:0;width:2px;background:var(--line)}
+.steps li.hl::before{background:var(--sun);border-color:var(--ink)}
+.steps b{display:block}
+.steps p{color:var(--muted);font-size:15px}
+.idmap{overflow-x:auto}
+
+/* ID chips */
+.ids{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.id{font-family:var(--f-mono);font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--blue-soft);color:var(--blue-ink);white-space:nowrap}
+.id.b{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.id.x{background:var(--sun-soft);color:var(--ink)}
+.type{font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* Severity */
+.scale{display:grid;gap:6px}
+.lvl{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 12px;border-radius:10px}
+.lvl.ok{background:var(--ok-soft)} .lvl.mi{background:var(--minor-soft)} .lvl.ma{background:var(--major-soft)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:9px;height:9px;border-radius:50%;flex:none}
+.ok .pill{color:var(--ok)} .ok .pill::before{background:var(--ok-dot)}
+.mi .pill{color:var(--minor)} .mi .pill::before{background:var(--minor-dot)}
+.ma .pill{color:var(--major)} .ma .pill::before{background:var(--major-dot)}
+.lvl p{font-size:14.5px}
+.scale.big .lvl{padding:14px 16px}
+.scale.big .lvl p{font-size:15.5px}
+
+/* Rubric items */
+.domain-band{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-radius:var(--r-md)}
+.domain-band.rec{background:var(--tomato-soft)} .domain-band.ent{background:var(--violet-soft)}
+.items{display:grid;gap:14px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;display:grid;gap:12px;min-width:0}
+.item.rec{border-top:4px solid var(--tomato)} .item.ent{border-top:4px solid var(--violet)}
+.item-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.qtext{font-size:14.5px;color:var(--muted);font-style:italic}
+.textq{border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:6px}
+.textq p{font-size:14.5px}
+.exact{font-family:var(--f-mono);font-size:13px;font-weight:600;background:var(--sun);padding:2px 7px;border-radius:5px;white-space:nowrap}
+.opts3{display:grid;gap:6px}
+.opts3 div{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:12px;font-size:14.5px;padding:8px 12px;border-radius:10px;background:var(--bg)}
+.opts3 b{font-weight:700}
+
+/* Drill (constraint spotting) */
+.drill{background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-lg);padding:20px;display:grid;gap:14px}
+.drill-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.bubble{background:var(--bg);border-radius:18px 18px 18px 4px;padding:16px 18px;font-size:16.5px;line-height:1.85;display:grid;gap:10px}
+.bubble .who{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.3}
+.ch{cursor:pointer;border-radius:5px;padding:2px 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background .15s}
+.ch:hover{background:var(--sun-soft)}
+.ch.sel{background:var(--sun)}
+.drill.checked .ch{cursor:default}
+.drill.checked .ch:hover{background:none}
+.drill.checked .ch.hit{background:var(--sun);box-shadow:inset 0 -2px 0 var(--ok)}
+.drill.checked .ch.miss{background:var(--major-soft);box-shadow:inset 0 -2px 0 var(--major-dot)}
+.drill.checked .ch.extra{text-decoration:line-through;text-decoration-color:var(--major-dot);text-decoration-thickness:2px;background:none}
+.drill-res{display:grid;gap:10px}
+.drill-res .sum{font-weight:700}
+.found{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.found li{font-size:13.5px;padding:5px 10px;border-radius:99px;font-weight:600}
+.found li.y{background:var(--ok-soft);color:var(--ok)}
+.found li.n{background:var(--major-soft);color:var(--major)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;font-style:normal}
+
+/* MCQ */
+.check{background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-lg);padding:20px;display:grid;gap:14px}
+.check .k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.q{font-weight:600;font-size:16.5px}
+.opts{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;text-align:left;width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font:inherit;font-size:15.5px;color:var(--ink);cursor:pointer}
+.opt:hover{border-color:var(--blue)}
+.opt .key{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--bg);font-weight:700;font-size:13px}
+.opt[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.opt[aria-pressed="true"] .key{background:var(--blue);color:var(--on-strong)}
+.opt.right{border-color:var(--ok-dot);background:var(--ok-soft)}
+.opt.right .key{background:var(--ok-dot);color:var(--on-strong)}
+.opt.wrong{border-color:var(--major-dot);background:var(--major-soft)}
+.opt.wrong .key{background:var(--major-dot);color:var(--on-strong)}
+.opt:disabled{cursor:default}
+.opt:disabled:hover{border-color:var(--line)}
+.opt.right:disabled:hover{border-color:var(--ok-dot)} .opt.wrong:disabled:hover{border-color:var(--major-dot)}
+.fb{border-radius:12px;padding:12px 14px;font-size:15px}
+.fb.good{background:var(--ok-soft)} .fb.bad{background:var(--major-soft)}
+.fb.good b:first-child{color:var(--ok)} .fb.bad b:first-child{color:var(--major)}
+
+/* SxS */
+.sxs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.sxs div{border-radius:10px;padding:10px 8px;text-align:center;font-size:13px;font-weight:600;line-height:1.3;display:grid;gap:4px;align-content:center}
+.sxs div small{font-weight:500;color:var(--muted);font-size:11.5px}
+.sxs .a2{background:var(--blue);color:var(--on-strong)} .sxs .a2 small{color:var(--on-strong);opacity:.85}
+.sxs .a1{background:var(--blue-soft);color:var(--blue-ink)}
+.sxs .eq{background:var(--surface);border:1px solid var(--line)}
+.sxs .b1{background:var(--sun-soft)}
+.sxs .b2{background:var(--sun)}
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ex{border-radius:var(--r-md);padding:14px 16px;display:grid;gap:6px;font-size:15px}
+.ex.bad{background:var(--major-soft)} .ex.good{background:var(--ok-soft)}
+.ex .k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.ex.bad .k{color:var(--major)} .ex.good .k{color:var(--ok)}
+.mcopts{display:flex;flex-wrap:wrap;gap:6px}
+.mcopts span{font-size:13.5px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface)}
+
+/* Checklist */
+.clist{display:grid;gap:8px}
+.clist label{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;align-items:start;padding:12px 14px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);cursor:pointer;font-size:15.5px}
+.clist input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--ok-dot)}
+.clist label:has(input:checked){border-color:var(--ok-dot);background:var(--ok-soft)}
+.status{font-weight:600;font-size:14.5px}
+.status.okc{color:var(--ok)}
+
+/* Final */
+.final-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.fq{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;display:grid;gap:12px}
+.qn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--on-strong);font-size:13px;font-weight:700;margin-right:10px;vertical-align:1px;font-variant-numeric:tabular-nums}
+.tagd{font-family:var(--f-mono);font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:2px}
+.tagd.rec{background:var(--tomato-soft);color:var(--tomato-ink)} .tagd.ent{background:var(--violet-soft);color:var(--violet-ink)} .tagd.gen{background:var(--blue-soft);color:var(--blue-ink)}
+.submit-bar{position:sticky;bottom:env(safe-area-inset-bottom,0px);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-lg);padding:12px 14px 12px 18px;z-index:5}
+.submit-bar .cnt{font-weight:600;font-variant-numeric:tabular-nums}
+.scorecard{border-radius:var(--r-lg);padding:22px;background:var(--ink);color:var(--on-strong);display:grid;gap:10px}
+.scorecard .big{font-family:var(--f-display);font-size:52px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.scorecard .big span{font-size:24px;opacity:.7}
+.scorecard p{opacity:.9}
+.scorecard .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.scorecard .btn{background:transparent;color:var(--on-strong);border-color:color-mix(in srgb,var(--on-strong) 45%,transparent)}
+.scorecard .btn.sunb{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+.complete{border-radius:var(--r-lg);padding:18px 20px;background:var(--ok-soft);display:grid;gap:4px}
+.complete b{color:var(--ok);font-family:var(--f-display);font-size:20px}
+
+/* Reference */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td .id{font-size:11.5px}
+.ref-h{display:flex;align-items:center;gap:10px}
+.swatch{width:12px;height:12px;border-radius:3px}
+.never{display:grid;gap:6px;margin:0;padding-left:20px}
+
+/* Module nav */
+.mnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:20px;margin-top:6px}
+.mnav .hint{font-size:13.5px;color:var(--muted);flex-basis:100%}
+.reset-row{margin-top:8px}
+
+@media (max-width:880px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:20px;padding-inline:16px;padding-block:16px 64px}
+  .rail{position:static;margin-inline:-16px}
+  .rail ol{display:flex;gap:6px;overflow-x:auto;padding:2px 16px 6px;scrollbar-width:none}
+  .rail ol::-webkit-scrollbar{display:none}
+  .rail li{flex:none}
+  .stop{padding:6px 12px 6px 6px;border-radius:99px;background:var(--surface);box-shadow:0 0 0 1px var(--line);gap:8px}
+  .stop .lab span,.stop .lab b{display:none}
+  .stop .short{display:inline;font-size:13.5px;font-weight:600;white-space:nowrap}
+  .stop .num{width:24px;height:24px;font-size:12px}
+  .stop[aria-current="step"]{box-shadow:0 0 0 2px var(--blue)}
+  .rail-sep,.rail-done{display:none}
+  .top-in{padding-inline:16px;gap:12px;flex-wrap:wrap}
+  .prog{order:3;flex-basis:100%;max-width:none}
+  .ref-btn{margin-left:auto}
+}
+@media (max-width:600px){
+  .domains,.two,.cmp,.facts{grid-template-columns:minmax(0,1fr)}
+  .rule{grid-template-columns:minmax(0,1fr);gap:4px}
+  .lvl{grid-template-columns:minmax(0,1fr);gap:2px}
+  .opts3 div{grid-template-columns:minmax(0,1fr);gap:2px}
+  .sxs{grid-template-columns:minmax(0,1fr)}
+  .sxs div{text-align:left;padding:10px 12px}
+  .brand small{display:none}
+  .scorecard .big{font-size:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span></span></div>
+      <div><b>CAE Evals</b><small>Rater onboarding · Recipes &amp; Entertainment</small></div>
+    </div>
+    <div class="prog" aria-label="Onboarding progress">
+      <div class="prog-row"><span id="prog-count">0 of 9 done</span><span id="prog-time">about 19 min left</span></div>
+      <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" id="prog-bar"><div class="fill" id="prog-fill"></div></div>
+    </div>
+    <button class="btn sm ref-btn" type="button" data-go="ref">Quick reference</button>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Modules">
+    <ol id="rail-list"></ol>
+    <div class="rail-done" id="rail-done" hidden></div>
+  </nav>
+
+  <main id="main">
+
+<!-- WELCOME -->
+<section class="mod" id="mod-welcome" data-mod="welcome">
+  <div class="hero">
+    <p class="eyebrow">Rater spec v1.2.1 · Locale en-US</p>
+    <h1>Rate real AI conversations as if <span class="mark">you</span> asked for the help.</h1>
+    <p class="lede">You'll read two AI assistants' conversations with the same user, rate each one, then pick the better one. Everything you need is in the next 15–20 minutes.</p>
+  </div>
+  <div class="domains">
+    <div class="domain rec">
+      <span class="dtag">RECIPES · R_01–R_24</span>
+      <h3>A weeknight dinner</h3>
+      <p>A main dish that takes roughly 30–60 minutes, asked for in the user's own words.</p>
+    </div>
+    <div class="domain ent">
+      <span class="dtag">ENTERTAINMENT · E_01–E_48</span>
+      <h3>Something to watch or hear</h3>
+      <p>A TV show or a music album/EP that fits a mood, a vibe or a niche interest.</p>
+    </div>
+  </div>
+  <div class="facts">
+    <div class="fact"><b>8 modules</b><span>Each ends with a quick check</span></div>
+    <div class="fact"><b>1 final check</b><span>10 questions, see your score</span></div>
+    <div class="fact"><b>Quick reference</b><span>Keep it open while you rate</span></div>
+  </div>
+  <div class="cta-row">
+    <button class="btn primary" type="button" data-go="m1">Start module 1</button>
+    <span class="small">Progress is saved in this browser, so you can pick up where you left off.</span>
+  </div>
+</section>
+
+<!-- M1 -->
+<section class="mod" id="mod-m1" data-mod="m1" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 1 · 2 min</p>
+    <h2>What you're rating</h2>
+    <p class="lede">Real users asked an AI assistant for help. You read two of those conversations and judge how well each assistant helped. You don't chat with any AI yourself.</p>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h3>Each task gives you</h3>
+      <ul>
+        <li>The user's verbatim first prompt, plus any follow-ups.</li>
+        <li><b>Assistant A</b>'s full conversation.</li>
+        <li><b>Assistant B</b>'s full conversation, answering the same first request.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>You deliver</h3>
+      <ul>
+        <li>Ratings and short explanations for A.</li>
+        <li>The same ratings for B.</li>
+        <li>A side-by-side verdict, backed by specific differences.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout blue">
+    <span class="k">Definition</span>
+    <p><b>"Conversation" or "response"</b> means the whole interaction: the first prompt, every follow-up, and the final recipe or recommendation. Rate it as one combined deliverable.</p>
+  </div>
+  <div class="callout sun">
+    <span class="k">Your seat</span>
+    <p>Put yourself in the user's position. Read as if you were the person who needed this help, and answer every question from that perspective.</p>
+  </div>
+  <div class="box">
+    <h3>What you'll see</h3>
+    <ul>
+      <li>Two transcripts labeled <b>Assistant A</b> and <b>Assistant B</b> in a plain, neutral layout. Which one comes first is randomized across raters.</li>
+      <li>Both are edited the same way: personal info masked, assistant names replaced with <span class="mono">[assistant]</span>, and "which model version are you?" exchanges removed. Don't count these edits against either assistant.</li>
+      <li>A and B can have different numbers of turns (1 to 6+), because the user followed up differently.</li>
+      <li>The first prompt may differ trivially between A and B (capitalization, spacing, a typo). Treat it as the same request.</li>
+      <li>If you get source links instead of transcripts, assistant branding may be visible. Don't let it affect your ratings.</li>
+      <li>Some task IDs are skipped. Those tasks are on hold and come in a later batch.</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h3>Asked once, about you</h3>
+    <div class="chips"><span class="chip">How often you cook at home</span><span class="chip">How often you stream</span><span class="chip">How often you use AI assistants</span></div>
+    <p class="small">No cooking or streaming expertise is needed.</p>
+  </div>
+  <div class="check" data-q="m1" data-mod="m1"></div>
+</section>
+
+<!-- M2 -->
+<section class="mod" id="mod-m2" data-mod="m2" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 2 · 2 min</p>
+    <h2>Five ground rules</h2>
+    <p class="lede">These apply to every task and both assistants.</p>
+  </div>
+  <div class="rules">
+    <div class="rule"><div class="tag">Read only<small>Zero lookups</small></div><p>Judge only what's on the page. Don't cook the recipe, watch the show or play the album. Don't search Google, AllRecipes, IMDb, Netflix, Reddit or Spotify to check quantities, cooking science or where something streams.</p></div>
+    <div class="rule"><div class="tag">Same yardstick<small>Consistency</small></div><p>Apply the same definitions and anchors to every task and to both assistants.</p></div>
+    <div class="rule"><div class="tag">A, then B<small>No going back</small></div><p>Finish every item for Assistant A before you read B. Once you reach the side-by-side, don't change individual ratings to match your overall pick.</p></div>
+    <div class="rule"><div class="tag">Substance over polish<small>Length isn't quality</small></div><p>Length, heavy formatting, dense bullets and upbeat phrasing don't make a better answer. Ask whether it respected the user's constraints and gave complete, coherent, plausible advice.</p></div>
+    <div class="rule"><div class="tag">Whole thread<small>Multi-turn</small></div><p>Conversations run from 1 turn to 6+. Judge how well the assistant handled the opening request and every follow-up on the way to the final answer.</p></div>
+  </div>
+  <div class="check" data-q="m2" data-mod="m2"></div>
+</section>
+
+<!-- M3 -->
+<section class="mod" id="mod-m3" data-mod="m3" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 3 · 1 min</p>
+    <h2>Workflow, step by step</h2>
+    <p class="lede">Do every task in this order. Don't skip ahead.</p>
+  </div>
+  <ol class="steps">
+    <li class="hl"><div><b>Read the user prompt</b><p>Note the domain (Recipe, or Entertainment: TV show / album). List every explicit constraint: dish type, 30–60 min weeknight time, diet, ingredients on hand, mood or vibe, runtime, streaming preference.</p></div></li>
+    <li><div><b>Read all of Assistant A</b><p>Top to bottom, including how it handled each follow-up.</p></div></li>
+    <li><div><b>Score Assistant A right away</b><p>While it's fresh. <span class="id">R-Q1–R-Q9</span> or <span class="id">E-Q1–E-Q5, E-Q9</span></p></div></li>
+    <li><div><b>Read all of Assistant B</b><p>Top to bottom.</p></div></li>
+    <li><div><b>Score Assistant B on the same items</b><p><span class="id b">R-Q11–R-Q19</span> or <span class="id b">E-Q11–E-Q15, E-Q19</span></p></div></li>
+    <li><div><b>Side-by-side</b><p>Pick which assistant did better (<span class="id x">SxS7</span>) and cite the observable differences behind it (<span class="id x">SxS8</span>).</p></div></li>
+    <li><div><b>Quality check, then identity questions</b><p>Make sure every explanation points to exact ingredients, steps, turns or titles. Then answer <span class="id x">MC1</span> and <span class="id x">MC2</span> honestly.</p></div></li>
+  </ol>
+  <div class="callout blue">
+    <span class="k">ID pattern</span>
+    <p>B's item IDs are A's plus 10. <span class="id">R-Q3</span> for A is <span class="id b">R-Q13</span> for B. Same question, same anchors.</p>
+  </div>
+  <div class="check" data-q="m3" data-mod="m3"></div>
+</section>
+
+<!-- M4 -->
+<section class="mod" id="mod-m4" data-mod="m4" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 4 · 1 min</p>
+    <h2>The severity scale</h2>
+    <p class="lede">Most items use these three labels. The domain anchors in the next two modules add detail on top of them.</p>
+  </div>
+  <div class="scale big">
+    <div class="lvl ok"><span class="pill">No Issue</span><p>Fully delivers what this item asks, with no noticeable omissions, inaccuracies or friction.</p></div>
+    <div class="lvl mi"><span class="pill">Minor Issue</span><p>One or two small things are imperfect or slightly incomplete, but the user could still use it as-is or with trivial common-sense adjustments.</p></div>
+    <div class="lvl ma"><span class="pill">Major Issue</span><p>Significant omissions, contradictions or flaws on this item that undermine its usefulness or fail the user's request.</p></div>
+  </div>
+  <div class="callout sun">
+    <span class="k">Quick test</span>
+    <p>Could the user still use it with a small, obvious tweak? That's <b>Minor</b>. Does the problem break the answer or the request? That's <b>Major</b>.</p>
+  </div>
+  <div class="check" data-q="m4" data-mod="m4"></div>
+</section>
+
+<!-- M5 RECIPES -->
+<section class="mod" id="mod-m5" data-mod="m5" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 5 · 4 min</p>
+    <h2>Recipes rubric</h2>
+    <p class="lede">Users asked for a weeknight dinner main dish, roughly 30–60 minutes. Rate A on <span class="nw">R-Q1</span> to <span class="nw">R-Q9</span>, then B on <span class="nw">R-Q11</span> to <span class="nw">R-Q19</span>.</p>
+  </div>
+  <div class="domain-band rec"><span class="dtag" style="color:var(--tomato-ink)">TASKS R_01–R_24</span><span class="small" style="color:var(--ink)">9 items per assistant: 6 ratings, 3 short texts</span></div>
+
+  <div class="items">
+    <article class="item rec">
+      <div class="item-h"><h3>Followed the request</h3><div class="ids"><span class="id">A · R-Q1</span><span class="id b">B · R-Q11</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did it follow the request? Did the assistant give the user what they asked for? Did it respect their constraints (if any)?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Delivers the requested dish type and honors every stated diet, ingredient and time constraint.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Mostly matches but drifts on a secondary detail, e.g. total time slightly over the limit.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Ignores an explicit restriction (meat or dairy when told not to) or gives a different type of dish.</p></div>
+      </div>
+      <div class="textq">
+        <div class="ids"><span class="id">A · R-Q2</span><span class="id b">B · R-Q12</span><span class="type">Open text · 1–3 sentences · required</span></div>
+        <p class="qtext">"Describe how well it followed the request. If there were any issues, what did it miss or get wrong? If no issues, what did it get right?"</p>
+        <p>Cite the specific constraints from the prompt and the turn(s) that met or missed them.</p>
+      </div>
+    </article>
+
+    <article class="item rec">
+      <div class="item-h"><h3>Complete</h3><div class="ids"><span class="id">A · R-Q3</span><span class="id b">B · R-Q13</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Was it complete? Does the recipe include everything needed to actually cook this — all ingredients with amounts, every step, times and temperatures?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Every ingredient has a quantity, every step is there, and heat levels, times and temperatures are clear.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Misses a minor detail, e.g. no amount for oil or salt, or one small prep step left implicit.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Leaves out key ingredient amounts, essential steps, or critical times or temperatures.</p></div>
+      </div>
+      <div class="textq">
+        <div class="ids"><span class="id">A · R-Q4</span><span class="id b">B · R-Q14</span><span class="type">Open text · required</span></div>
+        <p class="qtext">"What, if anything, was missing or incomplete?"</p>
+        <p>Name unquantified ingredients, missing steps, or missing temperatures and times. If nothing is missing, write <span class="exact">Complete.</span></p>
+      </div>
+    </article>
+
+    <article class="item rec">
+      <div class="item-h"><h3>Easy to follow</h3><div class="ids"><span class="id">A · R-Q5</span><span class="id b">B · R-Q15</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Was it easy to follow? Well-organized, logical order, easy to scan while cooking?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Ingredient list kept separate from numbered steps in cooking order. Easy to read at a glance.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Understandable, but cluttered, dense paragraphs, or slightly awkward order (prep hidden in a later step).</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Wall of text, steps out of cooking order, or a confusing structure.</p></div>
+      </div>
+    </article>
+
+    <article class="item rec">
+      <div class="item-h"><h3>Tone</h3><div class="ids"><span class="id">A · R-Q6</span><span class="id b">B · R-Q16</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did the tone feel right? Natural, helpful, not robotic or overly chatty?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Warm, practical and natural for everyday cooking help.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Slightly stiff, formulaic or over-the-top ("What a fantastic culinary journey!").</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Robotic, condescending, preachy, or buried in filler.</p></div>
+      </div>
+    </article>
+
+    <article class="item rec">
+      <div class="item-h"><h3>Trustworthy</h3><div class="ids"><span class="id">A · R-Q7</span><span class="id b">B · R-Q17</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did it seem trustworthy? Any weird ingredient combos, suspicious quantities, things that don't sound right?"</p>
+      <p class="small">Judge from the text alone. Don't test it or look it up.</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Proportions, flavor pairings, cook times and temperatures all look plausible.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Something looks slightly off on paper, e.g. a heavy spice ratio or an optimistic cook time.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Implausible quantities, broken cooking logic or contradictions, e.g. an ingredient used in the steps but never listed, or raw pasta simmered for 2 minutes.</p></div>
+      </div>
+      <div class="textq">
+        <div class="ids"><span class="id">A · R-Q8</span><span class="id b">B · R-Q18</span><span class="type">Open text · required</span></div>
+        <p class="qtext">"Did anything about this recipe feel off or make you skeptical?"</p>
+        <p>Point to the specific quantities, times, temperatures or steps. If nothing, write <span class="exact">Looks trustworthy.</span></p>
+      </div>
+    </article>
+
+    <article class="item rec">
+      <div class="item-h"><h3>Helpful extras</h3><div class="ids"><span class="id">A · R-Q9</span><span class="id b">B · R-Q19</span><span class="type">Single select · 3 options</span></div></div>
+      <p class="qtext">"Did it offer helpful extras? Substitution tips, serving suggestions, prep-ahead advice, etc. — without being asked?"</p>
+      <div class="opts3">
+        <div><b>Yes, helpful extras</b><span>It added useful tips on its own: substitutions, sides, storage, scaling.</span></div>
+        <div><b>No extras, didn't need any</b><span>The recipe stands cleanly on its own.</span></div>
+        <div><b>No extras, wish it had</b><span>It lacked context that would have helped.</span></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="drill" data-hl="r12" data-mod="m5"></div>
+</section>
+
+<!-- M6 ENTERTAINMENT -->
+<section class="mod" id="mod-m6" data-mod="m6" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 6 · 3 min</p>
+    <h2>Entertainment rubric</h2>
+    <p class="lede">Users asked for a TV show or a music album/EP that matches a mood, vibe or niche interest. Rate A on <span class="nw">E-Q1</span> to <span class="nw">E-Q5</span> and <span class="nw">E-Q9</span>, then B on <span class="nw">E-Q11</span> to <span class="nw">E-Q15</span> and <span class="nw">E-Q19</span>.</p>
+  </div>
+  <div class="domain-band ent"><span class="dtag" style="color:var(--violet-ink)">TASKS E_01–E_48</span><span class="small" style="color:var(--ink)">6 items per assistant: 4 ratings, 2 short texts. There is no <span class="nw">E-Q6</span> to <span class="nw">E-Q8</span>; the gap is intentional.</span></div>
+
+  <div class="items">
+    <article class="item ent">
+      <div class="item-h"><h3>Understood the request</h3><div class="ids"><span class="id">A · E-Q1</span><span class="id b">B · E-Q11</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did it understand what the user wanted? Did the assistant recommend something that matches the vibe/mood described?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Clearly fits the mood, genre, format (TV show vs. album) and the stated constraints.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Right general genre but misses a secondary nuance, e.g. episode length or tone.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Misses the requested vibe or format, or ignores an explicit exclusion.</p></div>
+      </div>
+      <div class="textq">
+        <div class="ids"><span class="id">A · E-Q2</span><span class="id b">B · E-Q12</span><span class="type">Open text · 1–3 sentences · required</span></div>
+        <p class="qtext">"How well did it match the request? If there were issues, what did it get wrong? If no issues, what did it nail?"</p>
+        <p>Say specifically how the recommended title(s) and description fit or missed the prompt.</p>
+      </div>
+    </article>
+
+    <article class="item ent">
+      <div class="item-h"><h3>Explained why</h3><div class="ids"><span class="id">A · E-Q3</span><span class="id b">B · E-Q13</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did it explain WHY this is a good match? Did it connect the recommendation back to what the user asked for?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Specific, tailored reasons tied directly to the user's stated mood or examples.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Generic praise or a plot summary with no clear link to the user's vibe.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>No reasoning, or filler that could apply to any show or album.</p></div>
+      </div>
+      <div class="textq">
+        <div class="ids"><span class="id">A · E-Q4</span><span class="id b">B · E-Q14</span><span class="type">Open text · required</span></div>
+        <p class="qtext">"What reasoning did it give?"</p>
+        <p>Summarize the key reason it gave for why the pick fits. If none, write <span class="exact">No reasoning provided.</span></p>
+      </div>
+    </article>
+
+    <article class="item ent">
+      <div class="item-h"><h3>Enough info to find it</h3><div class="ids"><span class="id">A · E-Q5</span><span class="id b">B · E-Q15</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did it give enough info to find it? Which streaming service, how many episodes, runtime, artist name, album title?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Has what you need to start watching or listening: exact title, platform or artist, format and length.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Omits one or two helpful details, e.g. title and plot but no streaming service or episode length.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Leaves out critical identifying or access information.</p></div>
+      </div>
+    </article>
+
+    <article class="item ent">
+      <div class="item-h"><h3>Tone</h3><div class="ids"><span class="id">A · E-Q9</span><span class="id b">B · E-Q19</span><span class="type">Single select</span></div></div>
+      <p class="qtext">"Did the tone feel right? Like a knowledgeable friend, not a sales pitch or a robot?"</p>
+      <div class="scale">
+        <div class="lvl ok"><span class="pill">No Issue</span><p>Conversational, natural and credible.</p></div>
+        <div class="lvl mi"><span class="pill">Minor Issue</span><p>Slightly stiff, encyclopedia-like, or overly promotional.</p></div>
+        <div class="lvl ma"><span class="pill">Major Issue</span><p>Robotic, template-driven or unnatural.</p></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="drill" data-hl="e32" data-mod="m6"></div>
+</section>
+
+<!-- M7 SXS -->
+<section class="mod" id="mod-m7" data-mod="m7" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 7 · 2 min</p>
+    <h2>Side-by-side and identity checks</h2>
+    <p class="lede">Only after both assistants are fully scored. Same items for both domains, prefixed R- or E-.</p>
+  </div>
+
+  <div class="box">
+    <div class="ids"><span class="id x">R-SxS7 / E-SxS7</span><span class="type">5-point scale</span></div>
+    <p class="qtext">"Overall Side-by-Side Preference: Which Assistant performed better overall on the task?"</p>
+    <div class="sxs">
+      <div class="a2">A much better<small>Assistant A was much better</small></div>
+      <div class="a1">A better<small>Assistant A was better</small></div>
+      <div class="eq">About the same<small>Assistant A and B were about the same</small></div>
+      <div class="b1">B better<small>Assistant B was better</small></div>
+      <div class="b2">B much better<small>Assistant B was much better</small></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="ids"><span class="id x">R-SxS8 / E-SxS8</span><span class="type">Open text · 2–3 sentences · required</span></div>
+    <p class="qtext">"Which specific, observable differences between the two conversations drove your overall rating?"</p>
+    <div class="two">
+      <div><p><b style="color:var(--tomato-ink)">Recipes:</b> cite exact ingredients, quantities, steps, times or turns.</p></div>
+      <div><p><b style="color:var(--violet-ink)">Entertainment:</b> cite exact titles, metadata given (platform, length, release year), reasoning offered, or turns.</p></div>
+    </div>
+    <p><b>Never</b> mention your own taste, how you think the dish would turn out, or how much you think the user would enjoy it.</p>
+  </div>
+
+  <div class="cmp">
+    <div class="ex bad"><span class="k">Weak</span><p>"B was better because it sounded tastier and was more detailed."</p></div>
+    <div class="ex good"><span class="k">Strong</span><p>"A gave amounts for every ingredient and a 425°F, 20-minute bake. B listed 'spices' with no quantities and dropped the toddler portion the user asked for in turn 2."</p></div>
+  </div>
+  <p class="small">SxS1 to SxS6 were retired in an earlier version, so numbering starts at 7 on purpose.</p>
+
+  <div class="box">
+    <div class="ids"><span class="id x">MC1</span><span class="id x">MC2</span><span class="type">Single select · asked last</span></div>
+    <p class="qtext">MC1: "Do you believe you know which AI assistant produced Assistant A's conversation?" MC2: "Same question for Assistant B's conversation."</p>
+    <div class="mcopts"><span>ChatGPT</span><span>Gemini</span><span>Claude</span><span>Other</span><span>No idea</span></div>
+    <p>Answer honestly. There's no right answer and it doesn't affect your quality score. They come last so they can't influence your ratings.</p>
+  </div>
+
+  <div class="check" data-q="m7" data-mod="m7"></div>
+</section>
+
+<!-- M8 -->
+<section class="mod" id="mod-m8" data-mod="m8" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Module 8 · 1 min</p>
+    <h2>Before you submit</h2>
+    <p class="lede">Run this check on every task. Tick each line to confirm you'll do it.</p>
+  </div>
+  <div class="clist" id="clist">
+    <label for="chk-0"><input type="checkbox" id="chk-0"><span>Every open-text answer points to specifics: exact ingredients, quantities, steps, turns, titles or metadata.</span></label>
+    <label for="chk-1"><input type="checkbox" id="chk-1"><span>Where nothing applies, I typed the exact phrase: <span class="exact">Complete.</span> <span class="exact">Looks trustworthy.</span> <span class="exact">No reasoning provided.</span></span></label>
+    <label for="chk-2"><input type="checkbox" id="chk-2"><span>No required field is blank, for A, B or the side-by-side.</span></label>
+    <label for="chk-3"><input type="checkbox" id="chk-3"><span>I didn't change any A or B rating after starting the side-by-side.</span></label>
+    <label for="chk-4"><input type="checkbox" id="chk-4"><span>I rated from the page only. No searching, cooking, watching or listening.</span></label>
+    <label for="chk-5"><input type="checkbox" id="chk-5"><span>I didn't copy any personal details from the transcript into my answers.</span></label>
+    <label for="chk-6"><input type="checkbox" id="chk-6"><span>I answered MC1 and MC2 last, honestly.</span></label>
+  </div>
+  <p class="status" id="clist-status" aria-live="polite"></p>
+</section>
+
+<!-- M9 FINAL -->
+<section class="mod" id="mod-m9" data-mod="m9" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Final check · 3 min</p>
+    <h2>Ten quick scenarios</h2>
+    <p class="lede">There's no pass mark. Answer all ten, then see your score with the reasoning for each.</p>
+  </div>
+  <ol class="final-list" id="final-list"></ol>
+  <div class="submit-bar" id="submit-bar">
+    <span class="cnt" id="final-count">0 of 10 answered</span>
+    <button class="btn primary" type="button" id="final-submit" disabled>See my score</button>
+  </div>
+  <div class="scorecard" id="scorecard" hidden tabindex="-1">
+    <span class="eyebrow" style="color:var(--on-strong);opacity:.75">Your score</span>
+    <div class="big" id="score-num">0<span>/10</span></div>
+    <p id="score-msg"></p>
+    <div class="row">
+      <button class="btn sunb" type="button" data-go="ref">Open quick reference</button>
+      <button class="btn" type="button" id="final-retake">Retake</button>
+    </div>
+  </div>
+  <div class="complete" id="complete-card" hidden></div>
+</section>
+
+<!-- REFERENCE -->
+<section class="mod" id="mod-ref" data-mod="ref" hidden>
+  <div class="mod-head">
+    <p class="eyebrow">Keep this open while you rate</p>
+    <h2>Quick reference</h2>
+  </div>
+
+  <div class="box">
+    <h3>Order of work</h3>
+    <p>Prompt and constraints → read A → score A → read B → score B → side-by-side → quality check → MC1, MC2.</p>
+  </div>
+
+  <div class="scale">
+    <div class="lvl ok"><span class="pill">No Issue</span><p>Fully delivers. No omissions, errors or friction.</p></div>
+    <div class="lvl mi"><span class="pill">Minor Issue</span><p>One or two small flaws. Usable as-is or with a trivial tweak.</p></div>
+    <div class="lvl ma"><span class="pill">Major Issue</span><p>Significant gaps, contradictions or flaws. Fails the request.</p></div>
+  </div>
+
+  <div class="ref-h"><span class="swatch" style="background:var(--tomato)"></span><h3>Recipes · R_01–R_24</h3></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>A</th><th>B</th><th>Answer</th><th>If nothing applies</th></tr></thead>
+    <tbody>
+      <tr><td>Followed the request</td><td><span class="id">R-Q1</span></td><td><span class="id b">R-Q11</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>How well it followed</td><td><span class="id">R-Q2</span></td><td><span class="id b">R-Q12</span></td><td>Text, 1–3 sentences</td><td></td></tr>
+      <tr><td>Complete</td><td><span class="id">R-Q3</span></td><td><span class="id b">R-Q13</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>What was missing</td><td><span class="id">R-Q4</span></td><td><span class="id b">R-Q14</span></td><td>Text</td><td><span class="exact">Complete.</span></td></tr>
+      <tr><td>Easy to follow</td><td><span class="id">R-Q5</span></td><td><span class="id b">R-Q15</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>Tone</td><td><span class="id">R-Q6</span></td><td><span class="id b">R-Q16</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>Trustworthy</td><td><span class="id">R-Q7</span></td><td><span class="id b">R-Q17</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>Anything felt off</td><td><span class="id">R-Q8</span></td><td><span class="id b">R-Q18</span></td><td>Text</td><td><span class="exact">Looks trustworthy.</span></td></tr>
+      <tr><td>Helpful extras</td><td><span class="id">R-Q9</span></td><td><span class="id b">R-Q19</span></td><td>Yes, helpful extras / No extras, didn't need any / No extras, wish it had</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ref-h"><span class="swatch" style="background:var(--violet)"></span><h3>Entertainment · E_01–E_48</h3></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>A</th><th>B</th><th>Answer</th><th>If nothing applies</th></tr></thead>
+    <tbody>
+      <tr><td>Understood the request</td><td><span class="id">E-Q1</span></td><td><span class="id b">E-Q11</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>How well it matched</td><td><span class="id">E-Q2</span></td><td><span class="id b">E-Q12</span></td><td>Text, 1–3 sentences</td><td></td></tr>
+      <tr><td>Explained why</td><td><span class="id">E-Q3</span></td><td><span class="id b">E-Q13</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>Reasoning given</td><td><span class="id">E-Q4</span></td><td><span class="id b">E-Q14</span></td><td>Text</td><td><span class="exact">No reasoning provided.</span></td></tr>
+      <tr><td>Enough info to find it</td><td><span class="id">E-Q5</span></td><td><span class="id b">E-Q15</span></td><td>No / Minor / Major</td><td></td></tr>
+      <tr><td>Tone</td><td><span class="id">E-Q9</span></td><td><span class="id b">E-Q19</span></td><td>No / Minor / Major</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ref-h"><span class="swatch" style="background:var(--sun)"></span><h3>Both domains, after A and B</h3></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>ID</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Overall preference</td><td><span class="id x">SxS7</span></td><td>Assistant A was much better / Assistant A was better / Assistant A and B were about the same / Assistant B was better / Assistant B was much better</td></tr>
+      <tr><td>Differences that drove it</td><td><span class="id x">SxS8</span></td><td>Text, 2–3 sentences. Observable differences only.</td></tr>
+      <tr><td>Who made A? (asked last)</td><td><span class="id x">MC1</span></td><td>ChatGPT / Gemini / Claude / Other / No idea</td></tr>
+      <tr><td>Who made B? (asked last)</td><td><span class="id x">MC2</span></td><td>ChatGPT / Gemini / Claude / Other / No idea</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="box">
+    <h3>Never</h3>
+    <ul class="never">
+      <li>Cook, watch, listen or search to fact-check anything.</li>
+      <li>Read B before A is fully scored, or change A/B ratings after the side-by-side.</li>
+      <li>Reward length, formatting or enthusiasm on their own.</li>
+      <li>Cite personal taste or predicted enjoyment in SxS8.</li>
+      <li>Penalize the masking edits: <span class="mono">[assistant]</span>, hidden personal info, removed model-version exchanges.</li>
+    </ul>
+  </div>
+  <div class="reset-row small">Sharing this device with another rater? <button class="link" type="button" id="reset-btn">Reset my progress</button></div>
+</section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var MODS=[
+    {id:"welcome",t:"Welcome",s:"Start",min:0,c:false},
+    {id:"m1",t:"What you're rating",s:"Task",min:2,c:true},
+    {id:"m2",t:"Five ground rules",s:"Rules",min:2,c:true},
+    {id:"m3",t:"Workflow",s:"Workflow",min:1,c:true},
+    {id:"m4",t:"Severity scale",s:"Severity",min:1,c:true},
+    {id:"m5",t:"Recipes rubric",s:"Recipes",min:4,c:true},
+    {id:"m6",t:"Entertainment rubric",s:"Entertainment",min:3,c:true},
+    {id:"m7",t:"Side-by-side & identity",s:"Side-by-side",min:2,c:true},
+    {id:"m8",t:"Before you submit",s:"Submit",min:1,c:true},
+    {id:"m9",t:"Final check",s:"Final",min:3,c:true},
+    {id:"ref",t:"Quick reference",s:"Reference",min:0,c:false}
+  ];
+  var COUNTED=MODS.filter(function(m){return m.c;});
+
+  var QS={
+    m1:{q:"A user asks for a chili recipe, then in turn 3 asks to make it vegetarian. What exactly are you rating?",
+        o:["Only the assistant's first reply","Only the assistant's last message","The whole conversation, through to the final recipe","The user's prompts"],a:2,
+        w:"The conversation is one combined deliverable: the opening request, every follow-up and the final recipe."},
+    m2:{q:"Assistant A's reply is twice as long as B's, with tables and bold headers. B is shorter and meets every constraint with complete steps. What should drive your ratings?",
+        o:["A, because it looks more thorough","Whichever one uses more formatting","Whether each one met the constraints with complete, plausible advice","Whichever dish you'd rather cook"],a:2,
+        w:"Substance over polish. Length and formatting aren't quality on their own."},
+    m3:{q:"You've just finished scoring Assistant A. What comes next?",
+        o:["Start the side-by-side","Read all of Assistant B's conversation, top to bottom","Skim B, then adjust A's scores","Answer MC1"],a:1,
+        w:"Step 4: read B fully, then score B on the same items. The side-by-side and MC1/MC2 come after."},
+    m4:{q:"The user asked for something that takes \"around 30 minutes\". The recipe takes about 40 minutes in total and meets everything else. How do you rate R-Q1?",
+        o:["No Issue","Minor Issue","Major Issue"],a:1,
+        w:"Total time slightly over the constraint is the spec's own example of a Minor Issue on R-Q1."},
+    m7:{q:"Which E-SxS8 justification follows the rules?",
+        o:["\"A's pick is a great show. I've seen it and loved it.\"","\"B felt smarter and more polished overall.\"","\"A named the show, said it streams on Hulu with 30-minute episodes, and tied its humor to Hacks. B gave a title only and never said where to watch it.\"","\"A's answer was longer and better formatted.\""],a:2,
+        w:"It cites observable differences: title, platform, episode length and the reasoning offered. No personal taste."}
+  };
+
+  var FQ=[
+    {d:"rec",q:"The user says \"Vegetarian friendly is a must.\" Assistant A's soup uses chicken broth in step 2. R-Q1?",o:["No Issue","Minor Issue","Major Issue"],a:2,w:"Ignoring an explicit dietary restriction is a Major Issue on R-Q1."},
+    {d:"rec",q:"Every ingredient has an amount except \"olive oil for the pan\" and \"salt to taste\". Steps, times and temperatures are all there. R-Q3?",o:["No Issue","Minor Issue","Major Issue"],a:1,w:"A missing oil or salt quantity is the spec's example of a Minor Issue on completeness."},
+    {d:"rec",q:"Step 4 says \"stir in the parmesan\", but parmesan never appears in the ingredient list. How do you rate R-Q7 (trustworthy)?",o:["No Issue","Minor Issue","Major Issue"],a:2,w:"An ingredient used in the steps but never listed is the spec's example of a Major Issue on trust."},
+    {d:"rec",q:"The recipe is clear and complete. It offers no tips, and it doesn't need any to be usable. R-Q9?",o:["Yes, helpful extras","No extras, didn't need any","No extras, wish it had"],a:1,w:"It stands cleanly on its own, so pick \"No extras, didn't need any\"."},
+    {d:"ent",q:"The user asked for an album. The assistant recommends eight singles by different artists. E-Q1?",o:["No Issue","Minor Issue","Major Issue"],a:2,w:"Missing the requested format (album vs. songs) is a Major Issue on E-Q1."},
+    {d:"ent",q:"The assistant gives the show's title and a plot summary, but no streaming service or episode length. E-Q5?",o:["No Issue","Minor Issue","Major Issue"],a:1,w:"Omitting one or two helpful logistics, like platform or episode length, is a Minor Issue."},
+    {d:"ent",q:"The assistant never says why its pick fits. What do you write in E-Q4?",o:["N/A","None","No reasoning provided.","Leave it blank"],a:2,w:"Type the exact phrase \"No reasoning provided.\" The field is required."},
+    {d:"gen",q:"You aren't sure a recommended album really came out last year. What do you do?",o:["Check Spotify to confirm","Judge only from what the conversation says","Rate it Major on every item","Skip the task"],a:1,w:"Pure content evaluation: no lookups. Form your view from the page alone."},
+    {d:"gen",q:"In the side-by-side you realize you prefer B, but you gave B a Minor Issue on tone earlier. What do you do?",o:["Change B's tone to No Issue so it matches","Lower A's ratings instead","Leave B's tone rating as it is","Restart the task"],a:2,w:"Sequential independence: don't alter individual ratings to match your overall preference."},
+    {d:"gen",q:"You have a strong hunch Assistant A is a particular brand. When and how do you answer MC1?",o:["First, so the rest of the ratings make sense","Last, honestly. It doesn't affect your quality score","Skip it unless you're certain","Pick \"No idea\" every time to be safe"],a:1,w:"MC1 and MC2 come after everything else. Answer honestly; there's no right answer."}
+  ];
+  var DTAG={rec:"RECIPE",ent:"ENTERTAINMENT",gen:"GENERAL"};
+
+  var HL={
+    r12:{id:"R_12",dom:"Recipe",paras:[
+      [["Give me a",0],["well rounded pasta dish","Dish type: pasta"],["recipe for dinner that will take me",0],["less than an hour to make.","Under an hour"]],
+      [["I already have",0],["chicken breast.","Uses chicken breast"]],
+      [["Include",0],["some veggies either mixed in or on the side.","Veggies included"]],
+      [["I have an",0],["oven, stove, air fryer, crock pot, and microwave","Equipment available"],["available for use.",0]],
+      [["I need",0],["enough for 2 adults and 2 toddlers.","Serves 2 adults + 2 toddlers"]]
+    ]},
+    e32:{id:"E_32",dom:"Entertainment",paras:[
+      [["I want a",0],["dark comedy show with good humor,","Dark comedy TV show"],["a half hour or less,","30 min or less"],["made for adults","Adult audience"],["and ideally",0],["on Max, Netflix, Hulu, or Apple TV.","Platform preference"],["Something",0],["similar to Hacks on Max","Reference: Hacks"]]
+    ]}
+  };
+
+  var KEY="cae-rater-onboarding-v1";
+  var S={cur:"welcome",done:{},mcq:{},hl:{},chk:{},fin:{ans:{},sub:false},at:null};
+  try{var raw=localStorage.getItem(KEY); if(raw){var p=JSON.parse(raw); for(var k in p){S[k]=p[k];}}}catch(e){}
+  if(!S.fin||typeof S.fin!=="object") S.fin={ans:{},sub:false};
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  function idx(id){for(var i=0;i<MODS.length;i++){if(MODS[i].id===id)return i;}return -1;}
+  function fmt(ts){try{return new Date(ts).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});}catch(e){return new Date(ts).toString();}}
+
+  /* Rail */
+  var rail=$("#rail-list"), n=0;
+  MODS.forEach(function(m){
+    if(m.id==="ref"){var sep=document.createElement("li"); sep.className="rail-sep"; sep.setAttribute("aria-hidden","true"); rail.appendChild(sep);}
+    var li=document.createElement("li");
+    var label=m.c?String(++n):(m.id==="welcome"?"★":"≡");
+    var sub=m.c?(m.min+" min"):(m.id==="welcome"?"Overview":"Use while rating");
+    li.innerHTML='<button type="button" class="stop" data-go="'+m.id+'" id="stop-'+m.id+'"><span class="num" aria-hidden="true">'+label+'</span><span class="lab"><b>'+m.t+'</b><span>'+sub+'</span></span><span class="short">'+m.s+'</span></button>';
+    rail.appendChild(li);
+  });
+
+  /* Module nav footers */
+  MODS.forEach(function(m,i){
+    var sec=$("#mod-"+m.id); if(!sec||m.id==="welcome") return;
+    var nav=document.createElement("div"); nav.className="mnav";
+    var prev=MODS[i-1], next=MODS[i+1];
+    var h="";
+    if(m.c) h+='<span class="hint" data-hint="'+m.id+'"></span>';
+    h+= prev?'<button class="btn" type="button" data-go="'+prev.id+'">← '+prev.t+'</button>':'<span></span>';
+    if(next) h+='<button class="btn primary" type="button" data-go="'+next.id+'">Next: '+next.t+' →</button>';
+    nav.innerHTML=h; sec.appendChild(nav);
+  });
+
+  document.addEventListener("click",function(e){
+    var g=e.target.closest("[data-go]"); if(g){e.preventDefault(); go(g.getAttribute("data-go"));}
+  });
+
+  function go(id){
+    if(idx(id)<0) id="welcome";
+    S.cur=id; save();
+    $$(".mod").forEach(function(s){s.hidden=(s.id!=="mod-"+id);});
+    $$(".stop").forEach(function(b){ if(b.getAttribute("data-go")===id) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); });
+    var cur=$("#stop-"+id); if(cur&&cur.scrollIntoView&&window.innerWidth<=880){try{cur.scrollIntoView({block:"nearest",inline:"center"});}catch(e){}}
+    try{history.replaceState(null,"","#"+id);}catch(e){}
+    try{window.scrollTo(0,0);}catch(e){}
+  }
+
+  function markDone(mod){
+    if(!S.done[mod]){S.done[mod]=true;}
+    if(!S.at && COUNTED.every(function(m){return S.done[m.id];})) S.at=Date.now();
+    save(); paintProgress();
+  }
+
+  function paintProgress(){
+    var d=COUNTED.filter(function(m){return S.done[m.id];}).length;
+    var left=COUNTED.filter(function(m){return !S.done[m.id];}).reduce(function(a,m){return a+m.min;},0);
+    $("#prog-count").textContent=d+" of "+COUNTED.length+" done";
+    $("#prog-time").textContent= left? ("about "+left+" min left") : "All done";
+    $("#prog-fill").style.width=(d/COUNTED.length*100)+"%";
+    $("#prog-bar").setAttribute("aria-valuenow",String(d));
+    MODS.forEach(function(m){
+      var b=$("#stop-"+m.id); if(!b) return;
+      b.classList.toggle("done",!!(m.c&&S.done[m.id]));
+      var num=b.querySelector(".num"); if(m.c){var k=COUNTED.indexOf(m)+1; num.textContent=S.done[m.id]?"✓":String(k);}
+      var sec=$("#mod-"+m.id); if(sec&&m.c){
+        var eb=sec.querySelector(".mod-head .eyebrow"); var pill=eb.querySelector(".donepill");
+        if(S.done[m.id]&&!pill){pill=document.createElement("span"); pill.className="donepill"; pill.textContent="DONE"; eb.appendChild(pill);}
+      }
+      var hint=document.querySelector('[data-hint="'+m.id+'"]');
+      if(hint){hint.textContent=S.done[m.id]?"":(m.id==="m8"?"Tick every line to mark this module done.":(m.id==="m9"?"Answer all ten and see your score to finish.":"Answer the check above to mark this module done."));hint.hidden=!!S.done[m.id];}
+    });
+    var all=!!S.at, rd=$("#rail-done"), cc=$("#complete-card");
+    rd.hidden=!all; cc.hidden=!all;
+    if(all){
+      rd.textContent="Onboarding complete · "+fmt(S.at);
+      cc.innerHTML='<b>Onboarding complete</b><p>All 9 modules finished on '+fmt(S.at)+'. Keep the quick reference open while you rate.</p>';
+    }
+  }
+
+  /* Instant MCQ */
+  function mountCheck(el){
+    var id=el.getAttribute("data-q"), Q=QS[id];
+    el.innerHTML='<span class="k">Quick check</span><p class="q">'+Q.q+'</p><div class="opts">'+Q.o.map(function(o,i){return '<button type="button" class="opt" data-i="'+i+'" id="'+id+'-o'+i+'" aria-pressed="false"><span class="key">'+"ABCD"[i]+'</span><span>'+o+'</span></button>';}).join("")+'</div><div class="fb" aria-live="polite" hidden></div>';
+    $$(".opt",el).forEach(function(b){b.addEventListener("click",function(){ if(S.mcq[id]!=null) return; S.mcq[id]=+b.getAttribute("data-i"); markDone(el.getAttribute("data-mod")); save(); paintCheck(el); });});
+    paintCheck(el);
+  }
+  function paintCheck(el){
+    var id=el.getAttribute("data-q"), Q=QS[id], a=S.mcq[id];
+    $$(".opt",el).forEach(function(b){var i=+b.getAttribute("data-i"); b.classList.toggle("right",a!=null&&i===Q.a); b.classList.toggle("wrong",a!=null&&i===a&&a!==Q.a); b.disabled=(a!=null); b.setAttribute("aria-pressed",String(a===i));});
+    var fb=$(".fb",el);
+    if(a==null){fb.hidden=true; fb.innerHTML=""; return;}
+    fb.hidden=false; fb.className="fb "+(a===Q.a?"good":"bad");
+    fb.innerHTML='<b>'+(a===Q.a?"Correct.":"Not quite.")+'</b> '+Q.w+' <button type="button" class="link">Try again</button>';
+    $(".link",fb).addEventListener("click",function(){delete S.mcq[id]; save(); paintCheck(el); var f=$(".opt",el); if(f) f.focus();});
+  }
+  $$(".check[data-q]").forEach(mountCheck);
+
+  /* Constraint highlighter */
+  function mountDrill(el){
+    var id=el.getAttribute("data-hl"), D=HL[id];
+    if(!S.hl[id]) S.hl[id]={sel:[],checked:false};
+    var total=0, html="";
+    D.paras.forEach(function(p,pi){
+      html+='<p>'+p.map(function(c,ci){ if(c[1]) total++; return '<span class="ch" role="button" tabindex="0" aria-pressed="false" data-k="'+pi+'-'+ci+'">'+c[0]+'</span>';}).join(" ")+'</p>';
+    });
+    el.innerHTML='<div class="drill-h"><span class="eyebrow" style="color:var(--blue)">Try it · Spot the constraints</span><span class="small">Real prompt · '+D.id+' · '+D.dom+'</span></div>'+
+      '<p>Step 1 of every task is listing the user\'s explicit constraints. Tap each phrase that sets one, then check.</p>'+
+      '<div class="bubble"><span class="who">User prompt</span>'+html+'</div>'+
+      '<div class="cta-row"><button class="btn primary sm" type="button" data-act="check">Check my picks</button><button class="btn sm" type="button" data-act="reset">Clear</button><span class="small" data-role="cnt"></span></div>'+
+      '<div class="drill-res" aria-live="polite" hidden></div>';
+    el._total=total;
+    $$(".ch",el).forEach(function(s){
+      function tog(){var st=S.hl[id]; if(st.checked) return; var k=s.getAttribute("data-k"), at=st.sel.indexOf(k); if(at>=0) st.sel.splice(at,1); else st.sel.push(k); save(); paintDrill(el);}
+      s.addEventListener("click",tog);
+      s.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault(); tog();}});
+    });
+    $('[data-act="check"]',el).addEventListener("click",function(){S.hl[id].checked=true; markDone(el.getAttribute("data-mod")); save(); paintDrill(el);});
+    $('[data-act="reset"]',el).addEventListener("click",function(){S.hl[id]={sel:[],checked:false}; save(); paintDrill(el);});
+    paintDrill(el);
+  }
+  function chunk(D,k){var p=k.split("-"); return D.paras[+p[0]][+p[1]];}
+  function paintDrill(el){
+    var id=el.getAttribute("data-hl"), D=HL[id], st=S.hl[id];
+    el.classList.toggle("checked",st.checked);
+    var hits=0, extras=0, labels=[];
+    $$(".ch",el).forEach(function(s){
+      var k=s.getAttribute("data-k"), c=chunk(D,k), sel=st.sel.indexOf(k)>=0;
+      s.classList.toggle("sel",sel&&!st.checked);
+      s.setAttribute("aria-pressed",String(sel));
+      s.setAttribute("tabindex",st.checked?"-1":"0");
+      s.classList.toggle("hit",st.checked&&sel&&!!c[1]);
+      s.classList.toggle("miss",st.checked&&!sel&&!!c[1]);
+      s.classList.toggle("extra",st.checked&&sel&&!c[1]);
+      if(c[1]){labels.push([c[1],sel]); if(sel) hits++;} else if(sel) extras++;
+    });
+    $('[data-role="cnt"]',el).textContent=st.checked?"":(st.sel.length+" selected");
+    $('[data-act="check"]',el).disabled=st.checked||st.sel.length===0;
+    var res=$(".drill-res",el);
+    if(!st.checked){res.hidden=true; return;}
+    res.hidden=false;
+    var msg="You found "+hits+" of "+el._total+" constraints"+(extras?(", plus "+extras+" phrase"+(extras>1?"s":"")+" that "+(extras>1?"aren't constraints":"isn't a constraint")):"")+".";
+    res.innerHTML='<p class="sum">'+msg+'</p><ul class="found">'+labels.map(function(l){return '<li class="'+(l[1]?"y":"n")+'">'+(l[1]?"✓ ":"Missed: ")+l[0]+'</li>';}).join("")+'</ul>'+
+      '<div class="legend"><span><i style="background:var(--sun);box-shadow:inset 0 -2px 0 var(--ok)"></i>Found</span><span><i style="background:var(--major-soft);box-shadow:inset 0 -2px 0 var(--major-dot)"></i>Missed</span><span><i style="background:var(--surface);border:1px solid var(--line);text-decoration:line-through"></i>Not a constraint</span></div>'+
+      '<p class="small">Each of these is something an assistant can honor or miss. Your R-Q1 / E-Q1 rating and its explanation should name them.</p>';
+  }
+  $$(".drill[data-hl]").forEach(mountDrill);
+
+  /* Checklist */
+  var boxes=$$("#clist input");
+  boxes.forEach(function(b){
+    b.checked=!!S.chk[b.id];
+    b.addEventListener("change",function(){S.chk[b.id]=b.checked; save(); paintList(true);});
+  });
+  function paintList(fromUser){
+    var c=boxes.filter(function(b){return b.checked;}).length, st=$("#clist-status");
+    if(c===boxes.length){ if(fromUser||S.done.m8) markDone("m8"); st.textContent="All 7 ticked. Use this list on every task."; st.className="status okc"; }
+    else { st.textContent=c+" of "+boxes.length+" ticked"; st.className="status"; }
+  }
+  paintList(false);
+
+  /* Final check */
+  var list=$("#final-list");
+  list.innerHTML=FQ.map(function(Q,qi){
+    return '<li class="fq" data-qi="'+qi+'"><p class="q"><span class="qn">'+(qi+1)+'</span>'+Q.q+'<span class="tagd '+Q.d+'">'+DTAG[Q.d]+'</span></p><div class="opts">'+Q.o.map(function(o,i){return '<button type="button" class="opt" data-i="'+i+'" id="f'+qi+'-o'+i+'" aria-pressed="false"><span class="key">'+"ABCD"[i]+'</span><span>'+o+'</span></button>';}).join("")+'</div><div class="fb" hidden></div></li>';
+  }).join("");
+  list.addEventListener("click",function(e){
+    var b=e.target.closest(".opt"); if(!b||S.fin.sub) return;
+    S.fin.ans[b.closest(".fq").getAttribute("data-qi")]=+b.getAttribute("data-i"); save(); paintFinal();
+  });
+  $("#final-submit").addEventListener("click",function(){
+    if(Object.keys(S.fin.ans).length<FQ.length) return;
+    S.fin.sub=true; markDone("m9"); save(); paintFinal();
+    var sc=$("#scorecard"); try{sc.focus({preventScroll:true}); sc.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}
+  });
+  $("#final-retake").addEventListener("click",function(){S.fin={ans:{},sub:false}; save(); paintFinal(); try{list.scrollIntoView({block:"start"});}catch(e){}});
+  function paintFinal(){
+    var answered=0, score=0;
+    $$(".fq",list).forEach(function(li){
+      var qi=li.getAttribute("data-qi"), Q=FQ[qi], a=S.fin.ans[qi];
+      if(a!=null){answered++; if(a===Q.a) score++;}
+      $$(".opt",li).forEach(function(b){
+        var i=+b.getAttribute("data-i");
+        b.setAttribute("aria-pressed",String(a===i));
+        b.classList.toggle("right",S.fin.sub&&i===Q.a);
+        b.classList.toggle("wrong",S.fin.sub&&a===i&&a!==Q.a);
+        b.disabled=!!S.fin.sub;
+      });
+      var fb=$(".fb",li);
+      if(S.fin.sub){fb.hidden=false; fb.className="fb "+(a===Q.a?"good":"bad"); fb.innerHTML='<b>'+(a===Q.a?"Correct.":"Not quite.")+'</b> '+Q.w;}
+      else {fb.hidden=true; fb.innerHTML="";}
+    });
+    $("#final-count").textContent=answered+" of "+FQ.length+" answered";
+    $("#final-submit").disabled=answered<FQ.length;
+    $("#submit-bar").hidden=!!S.fin.sub;
+    var sc=$("#scorecard"); sc.hidden=!S.fin.sub;
+    if(S.fin.sub){
+      $("#score-num").innerHTML=score+'<span>/'+FQ.length+'</span>';
+      var miss=FQ.length-score;
+      $("#score-msg").textContent= miss===0 ? "Every scenario right. You're ready to rate." :
+        ("You missed "+miss+". Read the reasoning under "+(miss>1?"those questions":"that question")+" above, then keep the quick reference open while you rate.");
+    }
+  }
+  paintFinal();
+
+  /* Reset (two-step, no dialogs) */
+  var rb=$("#reset-btn"), armed=false, t;
+  rb.addEventListener("click",function(){
+    if(!armed){armed=true; rb.textContent="Tap again to erase all progress"; t=setTimeout(function(){armed=false; rb.textContent="Reset my progress";},4000); return;}
+    clearTimeout(t);
+    try{localStorage.removeItem(KEY);}catch(e){}
+    S={cur:"welcome",done:{},mcq:{},hl:{},chk:{},fin:{ans:{},sub:false},at:null};
+    boxes.forEach(function(b){b.checked=false;});
+    $$(".donepill").forEach(function(p){p.remove();});
+    $$(".check[data-q]").forEach(paintCheck);
+    $$(".drill[data-hl]").forEach(function(el){S.hl[el.getAttribute("data-hl")]={sel:[],checked:false}; paintDrill(el);});
+    paintList(false); paintFinal(); paintProgress();
+    armed=false; rb.textContent="Reset my progress"; go("welcome");
+  });
+
+  paintProgress();
+  var h=""; try{h=(location.hash||"").slice(1);}catch(e){}
+  go(idx(h)>=0?h:(S.cur||"welcome"));
+})();
+</script>
